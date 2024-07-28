@@ -1,0 +1,19 @@
+﻿@{
+    ViewBag.Title = "Home Page";
+}
+
+<main>
+
+    <div class="row">
+        <section class="col-md-4" aria-labelledby="gettingStartedTitle">
+            @Html.ActionLink("Tickets", "Index", "Tickets", null, new { @class = "btn btn-info" })
+
+        </section>
+        <section class="col-md-4" aria-labelledby="librariesTitle">
+            @Html.ActionLink("Users", "Index", "User", null, new { @class = "btn btn-info" })
+        </section>
+        <section class="col-md-4" aria-labelledby="hostingTitle">
+            @Html.ActionLink("Reports", "Index", "Reports", null, new { @class = "btn btn-info" })
+        </section>
+    </div>
+</main>

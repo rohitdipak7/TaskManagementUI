@@ -1,0 +1,107 @@
+﻿@model IEnumerable<TaskManagementUI.Models.User>
+
+    @{
+        ViewBag.Title = "Users";
+    }
+
+    <h2>Users</h2>
+
+    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#createTaskModal">
+        Create New Task
+    </button>
+
+    <!-- Create Task Modal -->
+    <div class="modal fade" id="createTaskModal" tabindex="-1" role="dialog" aria-labelledby="createTaskModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="createTaskModalLabel">Create Task</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    @Html.Partial("_CreateOrEdit", new TaskManagementUI.Models.User())
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Task Modal -->
+    <div class="modal fade" id="editTaskModal" tabindex="-1" role="dialog" aria-labelledby="editTaskModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editTaskModalLabel">Edit Task</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <!-- Content will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <table class="table">
+        <tr>
+            <th>@Html.DisplayNameFor(model => model.First().Username)</th>
+            <th>@Html.DisplayNameFor(model => model.First().Email)</th>
+            <th>@Html.DisplayNameFor(model => model.First().IsManager)</th>
+            <th>@Html.DisplayNameFor(model => model.First().IsAdmin)</th>
+            <th>@Html.DisplayNameFor(model => model.First().Role)</th>
+            <th>@Html.DisplayNameFor(model => model.First().Team.Name)</th>
+            <th></th>
+        </tr>
+
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@Html.DisplayFor(modelItem => item.Username)</td>
+                <td>@Html.DisplayFor(modelItem => item.Email)</td>
+                <td>@Html.DisplayFor(modelItem => item.IsManager)</td>
+                <td>@Html.DisplayFor(modelItem => item.IsAdmin)</td>
+                <td>@Html.DisplayFor(modelItem => item.Role)</td>
+                <td>@Html.DisplayFor(modelItem => item.Team.Name)</td>
+                <td>
+                    <button type="button" class="btn btn-primary open-editTaskModal" data-id="@item.ID">
+                        Edit
+                    </button>
+                    |
+                    @Html.ActionLink("Details", "Details", new { id = item.ID }, new { @class = "btn btn-info" })
+                    |
+                    @Html.ActionLink("Delete", "Delete", new { id = item.ID }, new { @class = "btn btn-danger", @onclick = "return confirm('Are you sure you want to delete this item?');" })
+                </td>
+            </tr>
+        }
+    </table>
+
+    @section Scripts {
+        <script>
+            $(document).ready(function () {
+                // On modal open, set date and time in input
+                $('#editTaskModal').on('show.bs.modal', function (e) {
+                    var taskId = $(e.relatedTarget).data('id');
+                    $.get("/User/Edit/" + taskId, function (data) {
+                        $('#editTaskModal .modal-body').html(data);
+
+                        // Extract and set the date and time with seconds
+                        var dueDateInput = $('#DueDate');
+                        var dueDateValue = dueDateInput.val();
+                        if (dueDateValue) {
+                            var dueDate = new Date(dueDateValue);
+                            dueDateInput.val(dueDate.toISOString().substring(0, 16)); // yyyy-MM-ddTHH:mm
+                        }
+                    });
+                });
+            });
+            $(document).on("click", ".open-editTaskModal", function () {
+                var taskId = $(this).data('id');
+                $.get("/User/Edit/" + taskId, function (data) {
+                    $('#editTaskModal .modal-body').html(data);
+                    $('#editTaskModal').modal('show');
+                });
+            });
+        </script>
+    }

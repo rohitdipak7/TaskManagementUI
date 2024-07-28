@@ -1,0 +1,110 @@
+﻿@model IEnumerable<TaskManagementUI.Models.Ticket>
+
+    @{
+        ViewBag.Title = "Tickets";
+    }
+
+    <h2>Tickets</h2>
+
+    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#createTaskModal">
+        Create New Task
+    </button>
+
+    <!-- Create Task Modal -->
+    <div class="modal fade" id="createTaskModal" tabindex="-1" role="dialog" aria-labelledby="createTaskModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="createTaskModalLabel">Create Task</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    @Html.Partial("_CreateOrEdit", new TaskManagementUI.Models.Ticket())
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Task Modal -->
+    <div class="modal fade" id="editTaskModal" tabindex="-1" role="dialog" aria-labelledby="editTaskModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editTaskModalLabel">Edit Task</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <!-- Content will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <table class="table">
+        <tr>
+            <th>@Html.DisplayNameFor(model => model.Title)</th>
+            <th>@Html.DisplayNameFor(model => model.Description)</th>
+            <th>@Html.DisplayNameFor(model => model.Status)</th>
+            <th>@Html.DisplayNameFor(model => model.Priority)</th>
+            <th>@Html.DisplayNameFor(model => model.DueDate)</th>
+            <th></th>
+        </tr>
+
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@Html.DisplayFor(modelItem => item.Title)</td>
+                <td>@Html.DisplayFor(modelItem => item.Description)</td>
+                <td>@Html.DisplayFor(modelItem => item.Status)</td>
+                <td>@Html.DisplayFor(modelItem => item.Priority)</td>
+                <td>@Html.DisplayFor(modelItem => item.DueDate)</td>
+                <td>
+                    <button type="button" class="btn btn-primary open-editTaskModal" data-id="@item.ID">
+                        Edit
+                    </button>
+                    @*@Html.ActionLink("Edit", "Edit", new { id = item.ID }, new { @class = "btn btn-primary open-editTaskModal" })*@
+                    |
+                    @Html.ActionLink("Details", "Details", new { id = item.ID }, new { @class = "btn btn-info" })
+                    |
+                    @Html.ActionLink("Delete", "Delete", new { id = item.ID }, new { @class = "btn btn-danger", @onclick = "return confirm('Are you sure you want to delete this item?');" })
+                </td>
+            </tr>
+        }
+    </table>
+
+
+
+
+@section Scripts {
+    <script>
+        //debugger;
+        $(document).ready(function () {
+            // On modal open, set date and time in input
+            $('#editTaskModal').on('show.bs.modal', function (e) {
+                var taskId = $(e.relatedTarget).data('id');
+                $.get("/Tickets/Edit/" + taskId, function (data) {
+                    $('#editTaskModal .modal-body').html(data);
+
+                    // Extract and set the date and time with seconds
+                    var dueDateInput = $('#DueDate');
+                    var dueDateValue = dueDateInput.val();
+                    if (dueDateValue) {
+                        var dueDate = new Date(dueDateValue);
+                        dueDateInput.val(dueDate.toISOString().substring(0, 16)); // yyyy-MM-ddTHH:mm
+                    }
+                });
+            });
+        });
+        $(document).on("click", ".open-editTaskModal", function () {
+            var taskId = $(this).data('id');
+            $.get("/Tickets/Edit/" + taskId, function (data) {
+                $('#editTaskModal .modal-body').html(data);
+                $('#editTaskModal').modal('show');
+            });
+        });
+    </script>
+}
